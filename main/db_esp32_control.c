@@ -543,14 +543,19 @@ void db_send_internal_telemetry_to_stations(int tel_sock, wifi_sta_list_t *sta_l
                 buffer_pos++;
             } else {
                 // packet would get too long. Sent this chunk already
-                buffer[0] = (uint8_t) i;    // first byte shall be the number of entries in the packet
+                buffer[0] = (uint8_t) (i - already_sent);    // first byte shall be the number of entries in the packet
                 sendto(tel_sock, buffer, buffer_pos, 0, res->ai_addr, res->ai_addrlen);
-                already_sent += i;
+                already_sent = i;
                 buffer_pos = 1;
+                // Add current one to the fresh buffer
+                memcpy(&buffer[buffer_pos], sta_list->sta[i].mac, 6);
+                buffer_pos += 6;
+                buffer[buffer_pos] = sta_list->sta[i].rssi;
+                buffer_pos++;
             }
         }
-        buffer[0] = (uint8_t) sta_list->num - already_sent;
-        err = sendto(tel_sock, buffer, buffer_pos + 1, 0, res->ai_addr, res->ai_addrlen);
+        buffer[0] = (uint8_t) (sta_list->num - already_sent);
+        err = sendto(tel_sock, buffer, buffer_pos, 0, res->ai_addr, res->ai_addrlen);
         freeaddrinfo(res);
         if (err < 0) {
             ESP_LOGE(TAG, "Internal telemetry sendto failed. errno: %d", errno);

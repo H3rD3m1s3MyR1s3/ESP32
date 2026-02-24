@@ -214,7 +214,7 @@ void db_parse_msp_ltm(int tcp_clients[], udp_conn_list_t *udp_connection, uint8_
                     db_ltm_check_arm_state_set_wifi(db_msp_ltm_port);
                     if (ltm_frames_in_buffer == db_param_ltm_per_packet.value.db_param_u8.value &&
                         (db_param_ltm_per_packet.value.db_param_u8.value <= MAX_LTM_FRAMES_IN_BUFFER)) {
-                        db_send_to_all_clients(tcp_clients, udp_connection, ltm_frame_buffer, *serial_read_bytes);
+                        db_send_to_all_clients(tcp_clients, udp_connection, ltm_frame_buffer, ltm_frames_in_buffer_pnt);
                         ESP_LOGD(TAG, "Sent %i LTM message(s) to telemetry port!", ltm_frames_in_buffer);
                         ltm_frames_in_buffer = 0;
                         ltm_frames_in_buffer_pnt = 0;
